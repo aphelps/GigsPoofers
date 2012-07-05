@@ -2,7 +2,7 @@
 #include "Debug.h"
 
 /* Relay pins */
-#define SOLENOID_1_RELAY_PIN 13
+#define SOLENOID_1_RELAY_PIN 5
 #define IGNITER_1_RELAY_PIN 2
 #define SOLENOID_2_RELAY_PIN 3
 #define IGNITER_2_RELAY_PIN 4
@@ -14,7 +14,7 @@ int SOLENOID_1_SWITCH_PIN = 7;
 int IGNITER_1_SWITCH_PIN = 8;
 
 int SOLENOID_2_LED_PIN = 6;
-int IGNITER_2_LED_PIN = 5;
+int IGNITER_2_LED_PIN = 13;
 int SOLENOID_2_SWITCH_PIN = 11;
 int IGNITER_2_SWITCH_PIN = 12;
 
@@ -35,7 +35,8 @@ Poofer poofer_2(
 
   IGNITER_2_SWITCH_PIN,  
   IGNITER_2_LED_PIN,
-  IGNITER_2_RELAY_PIN);
+  IGNITER_2_RELAY_PIN
+  );
 
 
 Switch poofer_solenoid_1(SOLENOID_1_SWITCH_PIN, false,
@@ -79,10 +80,6 @@ Pin *pinArray[NUM_PINS] = {
 void setup() {
   Serial.begin(9600);
 
-  pinMode(SOLENOID_1_LED_PIN, OUTPUT);
-  pinMode(IGNITER_1_LED_PIN, OUTPUT);
-  pinMode(SOLENOID_2_LED_PIN, OUTPUT);
-  pinMode(IGNITER_2_LED_PIN, OUTPUT);
 }
 
 void loop() {
