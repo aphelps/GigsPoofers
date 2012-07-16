@@ -1,0 +1,7 @@
+State	KEYWORD1
+set_ign	KEYWORD2
+set_poof	KEYWORD2
+get_ign	KEYWORD2
+get_poof	KEYWORD2
+transmit	KEYWORD2
+receive	KEYWORD2

@@ -64,12 +64,12 @@ Pin *pinArray[NUM_PINS] = {
   NULL,               // D4: Igniter 2 -> Relay board IN 1 
   NULL,               // D5: Igniter 2 on light 
   NULL,               // D6: Solenoid 2 on light
-  &poofer_solenoid_1,  // D7: Solenoid 1 X
-  &poofer_igniter_1, // D8: Igniter 1 X
+  &poofer_solenoid_1, // D7: Solenoid 1 X
+  &poofer_igniter_1,  // D8: Igniter 1 X
   NULL,               // D9: Igniter 1 on light
   NULL,               // D10: Solenoid 1 on light
-  &poofer_solenoid_2,  // D11: Solenoid 2 X
-  &poofer_igniter_2, // D12: Igniter 2 X
+  &poofer_solenoid_2, // D11: Solenoid 2 X
+  &poofer_igniter_2,  // D12: Igniter 2 X
   NULL,               // D13: Solenoid 1 -> Relay board IN 4
 
   /* Analog Pins */
