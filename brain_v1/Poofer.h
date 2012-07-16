@@ -4,10 +4,10 @@
 class Poofer
 {
   public:
-  int sol_switch;
+  int sol_sensor;
   int sol_led;
   int sol_relay;
-  int ign_switch;
+  int ign_sensor;
   int ign_led;
   int ign_relay;
 
@@ -18,16 +18,16 @@ class Poofer
   unsigned long ign_turned_on_ms;
 
   public:
-  Poofer(int _sol_switch,
+  Poofer(int _sol_sensor,
          int _sol_led,
          int _sol_relay,
-         int _ign_switch,
+         int _ign_sensor,
          int _ign_led,
          int _ign_relay) {
-    sol_switch = _sol_switch;
+    sol_sensor = _sol_sensor;
     sol_led = _sol_led;
     sol_relay = _sol_relay;
-    ign_switch = _ign_switch;
+    ign_sensor = _ign_sensor;
     ign_led = _ign_led;
     ign_relay = _ign_relay;
 

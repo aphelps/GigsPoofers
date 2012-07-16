@@ -49,14 +49,14 @@ Poofer poofer_2(
   );
 
 
-Switch poofer_solenoid_1(SOLENOID_1_SWITCH_PIN, false,
-                         switch_solenoid, (void *)&poofer_1);
-Switch poofer_igniter_1(IGNITER_1_SWITCH_PIN,  false,
-                        switch_igniter,  (void *)&poofer_1);
-Switch poofer_solenoid_2(SOLENOID_2_SWITCH_PIN,  false,
-                         switch_solenoid, (void *)&poofer_2);
-Switch poofer_igniter_2(IGNITER_2_SWITCH_PIN,   false,
-                        switch_igniter,  (void *)&poofer_2);
+Sensor poofer_solenoid_1(SOLENOID_1_SWITCH_PIN, false,
+                         sensor_solenoid, (void *)&poofer_1);
+Sensor poofer_igniter_1(IGNITER_1_SWITCH_PIN,  false,
+                        sensor_igniter,  (void *)&poofer_1);
+Sensor poofer_solenoid_2(SOLENOID_2_SWITCH_PIN,  false,
+                         sensor_solenoid, (void *)&poofer_2);
+Sensor poofer_igniter_2(IGNITER_2_SWITCH_PIN,   false,
+                        sensor_igniter,  (void *)&poofer_2);
 
 #define NUM_PINS 21
 Pin *pinArray[NUM_PINS] = {
@@ -94,8 +94,8 @@ void setup() {
 
 void loop() {
 
-  /* Check switches and perform actions */
-  checkSwitches(pinArray, NUM_PINS, true);
+  /* Check sensores and perform actions */
+  checkSensors(pinArray, NUM_PINS, true);
 
   /* XXX - This code was hacked on based on JE's control code, it needs to be redone */
   int state[2];  
@@ -114,15 +114,15 @@ void loop() {
 //        _poofers[i] = _newPoofers[i];
 //        _newPoofers[i] = 0;
         if (i == 0) {
-          switch_igniter(-1, state[i] & IGN_STATE, &poofer_1);
+          sensor_igniter(-1, state[i] & IGN_STATE, &poofer_1);
         } else {
-          switch_igniter(-1, state[i] & IGN_STATE, &poofer_2);
+          sensor_igniter(-1, state[i] & IGN_STATE, &poofer_2);
         }
 
         if (i == 0) {
-          switch_igniter(-1, state[i] & POOF_STATE, &poofer_1);
+          sensor_igniter(-1, state[i] & POOF_STATE, &poofer_1);
         } else {
-          switch_igniter(-1, state[i] & POOF_STATE, &poofer_2);
+          sensor_igniter(-1, state[i] & POOF_STATE, &poofer_2);
         }
         state[i] = 0;
       }

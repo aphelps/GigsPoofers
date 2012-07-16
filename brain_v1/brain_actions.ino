@@ -1,5 +1,5 @@
 
-void switch_solenoid(int pin, int value, void *arg)
+void sensor_solenoid(int pin, int value, void *arg)
 {
   Poofer *poofer = (Poofer *)arg;
 
@@ -18,7 +18,7 @@ void switch_solenoid(int pin, int value, void *arg)
 
   digitalWrite(poofer->sol_led, poofer->sol_value);
   digitalWrite(poofer->sol_relay, poofer->sol_value);
-  DEBUG_PRINT(2, "switch_solenoid pin=");
+  DEBUG_PRINT(2, "sensor_solenoid pin=");
   DEBUG_PRINT(2, pin);
   DEBUG_PRINT(2, " value=");
   DEBUG_PRINT(2, value);
@@ -33,7 +33,7 @@ void switch_solenoid(int pin, int value, void *arg)
   DEBUG_PRINT(2, "\n");
 }
 
-void switch_igniter(int pin, int value, void *arg)
+void sensor_igniter(int pin, int value, void *arg)
 {
   Poofer *poofer = (Poofer *)arg;
 
@@ -52,7 +52,7 @@ void switch_igniter(int pin, int value, void *arg)
 
   digitalWrite(poofer->ign_led, poofer->ign_value);
   digitalWrite(poofer->ign_relay, poofer->ign_value);
-  DEBUG_PRINT(2, "switch_igniter pin=");
+  DEBUG_PRINT(2, "sensor_igniter pin=");
   DEBUG_PRINT(2, pin);
   DEBUG_PRINT(2, " value=");
   DEBUG_PRINT(2, value);
