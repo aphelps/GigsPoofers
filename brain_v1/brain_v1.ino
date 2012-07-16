@@ -1,6 +1,10 @@
+#define DEBUG
+#define DEBUG_VERBOSE 2
+
 #include "Pins.h"
 #include "Debug.h"
 #include "State.h"
+#include "Poofer.h"
 
 /*
   A - igniter 1B - igniter 2C - poofer 1D - poofer 2
@@ -93,8 +97,8 @@ void loop() {
   /* Check switches and perform actions */
   checkSwitches(pinArray, NUM_PINS, true);
 
-  int state[2];
-  
+  /* XXX - This code was hacked on based on JE's control code, it needs to be redone */
+  int state[2];  
   while (Serial.available()) {
     char value = Serial.read();
     if ((value >= BASE_CHAR) && (value < BASE_CHAR + NUM_POOFERS)) {
@@ -131,6 +135,6 @@ void loop() {
 
   }
   
-//  delay(100);
+  DEBUG_COMMAND(delay(100));
 }
 
