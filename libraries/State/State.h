@@ -4,9 +4,11 @@
 #include "Arduino.h"
 
 #define MAX_POOFERS 10
-#define IGN_STATE 0x1
+
 #define BASE_CHAR 'A'
 #define DELIMITER 'X'
+
+#define IGN_STATE  0x1
 #define POOF_STATE 0x2
 
 class State
