@@ -25,11 +25,12 @@
  *   S18:
  */
 
-//#define DEBUG
-//#define DEBUG_VERBOSE 2
+#define DEBUG
+#define DEBUG_VERBOSE 2
 
-#include "Pins.h"
 #include "Debug.h"
+#include "Pins.h"
+#include "Poofer.h"
 
 #define VALVE_RELAY_PIN    2
 #define VALVE_SWITCH_PIN   9
@@ -46,22 +47,20 @@
 #define LED5_PIN 12
 #define LED6_PIN 8
 
-Output valve_LED(VALVE_LED_PIN, LOW);
+Output valve_led(VALVE_LED_PIN, LOW);
 Output valve_relay(VALVE_RELAY_PIN, LOW);
-Output igniter_LED(IGNITER_LED_PIN, LOW);
+Output igniter_led(IGNITER_LED_PIN, LOW);
 Output igniter_relay(IGNITER_RELAY_PIN, LOW);
 
-Output LED1(LED1_PIN, HIGH);
-Output LED2(LED2_PIN, LOW);
-Output LED3(LED3_PIN, HIGH);
-Output LED4(LED4_PIN, LOW);
-Output LED5(LED5_PIN, HIGH);
-Output LED6(LED6_PIN, LOW);
+Sensor valve_switch(VALVE_SWITCH_PIN, true, false, NULL);
+Sensor igniter_switch(IGNITER_SWITCH_PIN, true, false, NULL);
 
-Sensor valve_switch(VALVE_SWITCH_PIN, true, false,
-                    action_set_output, (void *)&valve_LED);
-Sensor igniter_switch(IGNITER_SWITCH_PIN, true, false,
-                      action_set_output, (void *)&igniter_LED);
+Output LED1(LED1_PIN, LOW);
+Output LED2(LED2_PIN, LOW);
+Output LED3(LED3_PIN, LOW);
+Output LED4(LED4_PIN, LOW);
+Output LED5(LED5_PIN, LOW);
+Output LED6(LED6_PIN, LOW);
 
 #define NUM_PINS 14 // Digital pins only
 // #define NUM_PINS 21 // Digital + analog
@@ -78,9 +77,9 @@ Pin *pinArray[NUM_PINS] = {
   &LED5,              // D8: LED
   &valve_switch,      // D9: Valve switch
   &igniter_switch,    // D10: Igniter switch
-  &valve_LED,         // D11: Valve LED
+  &valve_led,         // D11: Valve LED
   &LED6,              // D12: LED
-  &igniter_LED,       // D13: Igniter LED
+  &igniter_led,       // D13: Igniter LED
 
 #if 0
   /* Analog Pins */
@@ -93,6 +92,9 @@ Pin *pinArray[NUM_PINS] = {
   NULL,               // A7: Empty
 #endif
 };
+
+Poofer poofer(&igniter_switch, &igniter_relay, &igniter_led,
+            &valve_switch, &valve_relay, &valve_led);
 
 
 void setup() {
@@ -108,7 +110,7 @@ void loop() {
   // XXX - Todo
 
   /* Based on the inputs determined what to do with the poofers */
-  // XXX - Todo
+  poofer.processState();
 
   /* Trigger the outputs */
   triggerOutputs(pinArray, NUM_PINS);
