@@ -49,13 +49,13 @@ Poofer poofer_2(
   );
 
 
-Sensor poofer_solenoid_1(SOLENOID_1_SWITCH_PIN, false,
+Sensor poofer_solenoid_1(SOLENOID_1_SWITCH_PIN, false, false,
                          sensor_solenoid, (void *)&poofer_1);
-Sensor poofer_igniter_1(IGNITER_1_SWITCH_PIN,  false,
+Sensor poofer_igniter_1(IGNITER_1_SWITCH_PIN,  false, false,
                         sensor_igniter,  (void *)&poofer_1);
-Sensor poofer_solenoid_2(SOLENOID_2_SWITCH_PIN,  false,
+Sensor poofer_solenoid_2(SOLENOID_2_SWITCH_PIN,  false, false,
                          sensor_solenoid, (void *)&poofer_2);
-Sensor poofer_igniter_2(IGNITER_2_SWITCH_PIN,   false,
+Sensor poofer_igniter_2(IGNITER_2_SWITCH_PIN, false, false,
                         sensor_igniter,  (void *)&poofer_2);
 
 #define NUM_PINS 21
