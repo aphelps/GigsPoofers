@@ -94,7 +94,8 @@ Pin *pinArray[NUM_PINS] = {
 };
 
 Poofer poofer(&igniter_switch, &igniter_relay, &igniter_led,
-            &valve_switch, &valve_relay, &valve_led);
+              &valve_switch, &valve_relay, &valve_led,
+              true);
 
 
 void setup() {
