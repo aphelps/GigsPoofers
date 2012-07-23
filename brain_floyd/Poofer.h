@@ -73,9 +73,11 @@ public:
     }
 
     if (_sol_on) {
-      if ((_sol_switch->curr_state == LOW) ||
-          ((now - _sol_on_ms) > _sol_max_ms)) {
-        /* Disable when switch is turned off or timer elapses */
+      /* Disable the solenoid when : */
+      if ((_sol_switch->curr_state == LOW) ||   // Switch is off 
+          _ign_on ||                            // Ignitor is on
+          ((now - _sol_on_ms) > _sol_max_ms)    // Timeout has elapsed
+          ) { 
         _sol_on = false;
         _sol_relay->setValue(_off_value);
         _sol_led->setValue(LOW);
@@ -93,7 +95,7 @@ public:
         /* Reset when switch goes to low */
         _sol_on_ms = 0;
       }
-    }    
+    }
 
   }
 
