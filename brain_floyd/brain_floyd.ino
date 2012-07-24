@@ -23,14 +23,17 @@
  *   S16: RX0       -> Xbee switch
  *   S17: Xbee Dout -> Xbee switch
  *   S18:
+ *
+ * Analog pin A0 is also attached to a photoresistor
  */
 
-#define DEBUG
-#define DEBUG_VERBOSE 2
+//#define DEBUG
+//#define DEBUG_VERBOSE 2
 
 #include "Debug.h"
 #include "Pins.h"
 #include "Poofer.h"
+#include "State.h"
 
 #define VALVE_RELAY_PIN    2
 #define VALVE_SWITCH_PIN   9
@@ -54,6 +57,7 @@ Output igniter_relay(IGNITER_RELAY_PIN, LOW);
 
 Sensor valve_switch(VALVE_SWITCH_PIN, true, false, NULL);
 Sensor igniter_switch(IGNITER_SWITCH_PIN, true, false, NULL);
+Sensor photoresistor(A0, true, true, action_print_value);
 
 Output LED1(LED1_PIN, LOW);
 Output LED2(LED2_PIN, LOW);
@@ -62,7 +66,7 @@ Output LED4(LED4_PIN, LOW);
 Output LED5(LED5_PIN, LOW);
 Output LED6(LED6_PIN, LOW);
 
-#define NUM_PINS 14 // Digital pins only
+#define NUM_PINS 15 // Digital pins only
 // #define NUM_PINS 21 // Digital + analog
 Pin *pinArray[NUM_PINS] = {
   /* Digital Pins */
@@ -81,8 +85,9 @@ Pin *pinArray[NUM_PINS] = {
   &LED6,              // D12: LED
   &igniter_led,       // D13: Igniter LED
 
-#if 0
   /* Analog Pins */
+  &photoresistor,       // A0: Photo Resistor
+#if 0
   NULL,               // A1: Empty
   NULL,               // A2: Empty
   NULL,               // A3: Empty
@@ -93,10 +98,13 @@ Pin *pinArray[NUM_PINS] = {
 #endif
 };
 
-Poofer poofer(&igniter_switch, &igniter_relay, &igniter_led,
-              &valve_switch, &valve_relay, &valve_led,
-              true);
+#define NUM_POOFERS 1
+State state(NUM_POOFERS);
 
+Poofer poofers[NUM_POOFERS] = {
+  Poofer(0, &state,&igniter_switch, &igniter_relay, &igniter_led,
+         &valve_switch, &valve_relay, &valve_led, true),
+};
 
 void setup() {
   Serial.begin(9600);
@@ -108,10 +116,12 @@ void loop() {
   checkSensors(pinArray, NUM_PINS, false);
 
   /* Receive commands via XBee */
-  // XXX - Todo
+  state.receive();
 
   /* Based on the inputs determined what to do with the poofers */
-  poofer.processState();
+  for (int i = 0; i < NUM_POOFERS; i++) {
+    poofers[i].processState();
+  }
 
   /* Trigger the outputs */
   triggerOutputs(pinArray, NUM_PINS);
@@ -136,4 +146,14 @@ void action_set_output(int pin, int value, void *arg)
   DEBUG_PRINT(2, " outpin-");
   DEBUG_PRINT(2, out->_value);
   DEBUG_PRINT(2, "\n");
+}
+
+
+void action_print_value(int pin, int value, void *arg) 
+{
+  DEBUG_PRINT(3, "Pin ");
+  DEBUG_PRINT(3, pin);
+  DEBUG_PRINT(3, " value: ");
+  DEBUG_PRINT(3, value);
+  DEBUG_PRINT(3, "\n");
 }
