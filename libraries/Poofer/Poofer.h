@@ -19,7 +19,7 @@ public:
   void setSolTimeout(unsigned long sol_max_ms);
 
   /*
-   * Examine the switch states and set the output values appropriately
+   * Examine the sensor states and set the output values appropriately
    */
   void processState(void);
 

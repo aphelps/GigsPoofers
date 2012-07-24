@@ -1,4 +1,4 @@
-/*
+/******************************************************************************
  * This controls the version of the protoboard I made in Floyd.
  *
  * This has a line of 18 screw terminals connected to various things.  I made
@@ -25,7 +25,7 @@
  *   S18:
  *
  * Analog pin A0 is also attached to a photoresistor
- */
+ *****************************************************************************/
 
 //#define DEBUG
 //#define DEBUG_VERBOSE 2
@@ -127,33 +127,4 @@ void loop() {
   triggerOutputs(pinArray, NUM_PINS);
 
   DEBUG_COMMAND(delay(100));
-}
-
-
-
-/* Actions */
-
-/* Set an output's next value to the value of the sensor */
-void action_set_output(int pin, int value, void *arg) 
-{
-  Output *out = (Output *)arg;
-
-  out->setValue(value);
-  DEBUG_PRINT(2, "set_output: pin-");
-  DEBUG_PRINT(2, pin);
-  DEBUG_PRINT(2, " value-");
-  DEBUG_PRINT(2, value);
-  DEBUG_PRINT(2, " outpin-");
-  DEBUG_PRINT(2, out->_value);
-  DEBUG_PRINT(2, "\n");
-}
-
-
-void action_print_value(int pin, int value, void *arg) 
-{
-  DEBUG_PRINT(3, "Pin ");
-  DEBUG_PRINT(3, pin);
-  DEBUG_PRINT(3, " value: ");
-  DEBUG_PRINT(3, value);
-  DEBUG_PRINT(3, "\n");
 }
