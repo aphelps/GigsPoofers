@@ -1,3 +1,7 @@
+//#define DEBUG
+//#define DEBUG_VERBOSE 2
+
+#include "Debug.h"
 
 #include "Arduino.h"
 #include "State.h"
@@ -65,6 +69,7 @@ void State::transmit() {
 void State::receive() {
   while (Serial.available()) {
     char value = Serial.read();
+    DEBUG_PRINT(2, value);
     if ((value >= BASE_CHAR) && (value < BASE_CHAR + _numPoofers)) {
       int index = value - BASE_CHAR;
       _newPoofers[index] |= IGN_STATE;
@@ -72,6 +77,7 @@ void State::receive() {
       int index = value - (BASE_CHAR + _numPoofers);
       _newPoofers[index] |= POOF_STATE;
     } else if (value == DELIMITER) {
+      DEBUG_PRINT(2, "\n");
       for (int i = 0; i < _numPoofers; i++ ) {
         _poofers[i] = _newPoofers[i];
         _newPoofers[i] = 0;
