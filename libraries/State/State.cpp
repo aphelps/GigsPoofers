@@ -1,5 +1,5 @@
-//#define DEBUG
-//#define DEBUG_VERBOSE 2
+#define DEBUG
+#define DEBUG_VERBOSE 2
 
 #include "Debug.h"
 
@@ -50,20 +50,24 @@ boolean State::get_poof(int index) {
 
 void State::transmit() {
   char baseChar = BASE_CHAR;
+  char xmitChar = 0;
   for(int x = 0; x < _numPoofers; x++) {
     if (_poofers[x] & IGN_STATE) {
-      Serial.write(baseChar + x);
+      xmitChar = baseChar + x;
+      Serial.write(xmitChar);
     }
   }
 
   baseChar = BASE_CHAR + _numPoofers;
   for (int y = 0; y < _numPoofers; y++) {
     if (_poofers[y] & POOF_STATE) {
-      Serial.write(baseChar + y);
+      xmitChar = baseChar + y;
+      Serial.write(xmitChar);
     }
   }
 
   Serial.write(DELIMITER);
+  DEBUG_PRINT(2, "\n"); // Need to add a new line
 }
 
 void State::receive() {
@@ -77,7 +81,7 @@ void State::receive() {
       int index = value - (BASE_CHAR + _numPoofers);
       _newPoofers[index] |= POOF_STATE;
     } else if (value == DELIMITER) {
-      DEBUG_PRINT(2, "\n");
+      DEBUG_PRINT(2, "(done)\n");
       for (int i = 0; i < _numPoofers; i++ ) {
         _poofers[i] = _newPoofers[i];
         _newPoofers[i] = 0;

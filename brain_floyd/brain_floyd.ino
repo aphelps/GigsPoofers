@@ -126,5 +126,5 @@ void loop() {
   /* Trigger the outputs */
   triggerOutputs(pinArray, NUM_PINS);
 
-  DEBUG_COMMAND(delay(100));
+  DEBUG_COMMAND(XXXdelay(100));
 }

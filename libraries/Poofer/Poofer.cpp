@@ -1,7 +1,11 @@
-/*
+/******************************************************************************
  * A class to handle processing of the sensors and signals related to a poofer
  * and to set the outputs appropriately.
- */
+ *****************************************************************************/
+//#define DEBUG
+//#define DEBUG_VERBOSE 2
+
+#include "Debug.h"
 #include "Pins.h"
 #include "Poofer.h"
 #include "State.h"
@@ -61,8 +65,8 @@ void Poofer::processState(void) {
   if (_ign_on) {
     // Disable the ignitor when:
     if (((_ign_switch->curr_state == LOW) &&
-         (_state->get_ign(_id)) == LOW) ||   // Switch and xbee state is off
-        ((now - _ign_on_ms) > _ign_max_ms)   // Timeout has elapsed
+         (_state->get_ign(_id) == LOW)) ||   // Switch and xbee state is off
+        ((now - _ign_on_ms) > _ign_max_ms)  // Timeout has elapsed
         ) {
       /* Disable when switch is turned off or timer elapses */
       _ign_on = false;
@@ -75,7 +79,7 @@ void Poofer::processState(void) {
         (_state->get_ign(_id) == HIGH)       // Switch or xbee state is on
         ) {
       if (_ign_on_ms == 0) {
-        /* Switch was turned on while in a reset set */
+        /* Switch was turned on while in a reset state */
         _ign_on = true;
         _ign_relay->setValue(_on_value);
         _ign_led->setValue(HIGH);
@@ -89,7 +93,8 @@ void Poofer::processState(void) {
 
   if (_sol_on) {
     /* Disable the solenoid when : */
-    if ((_sol_switch->curr_state == LOW) ||   // Switch is off 
+    if (((_sol_switch->curr_state == LOW) &&
+         (_state->get_poof(_id) == LOW)) ||    // Switch and xbee state is off
         _ign_on ||                            // Ignitor is on
         ((now - _sol_on_ms) > _sol_max_ms)    // Timeout has elapsed
         ) { 
@@ -98,9 +103,17 @@ void Poofer::processState(void) {
       _sol_led->setValue(LOW);
     }
   } else {
-    if (_sol_switch->curr_state == HIGH) {
-      if ((_sol_on_ms == 0) && (!_ign_on)) {
-        /* Switch was turned on while in a reset set */
+    if ((_sol_switch->curr_state == HIGH) ||
+        (_state->get_poof(_id) == HIGH)       // Switch or xbee state is on
+        ) {
+      if (_ign_on) { // Do not trigger if the igniter is on
+        /*
+         * While the igniter is on prevent the solenoid from coming on
+         * immediately when the igniter turns off.
+         */
+        _sol_on_ms = -1;
+      } else if (_sol_on_ms == 0) {
+        /* Switch was turned on while in a reset state */
         _sol_on = true;
         _sol_relay->setValue(_on_value);
         _sol_led->setValue(HIGH);
