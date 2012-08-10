@@ -5,7 +5,7 @@
 #include "Pins.h"
 #include "State.h"
 
-#define IGNITION_TIMEOUT_MS 5000
+#define IGNITION_TIMEOUT_MS 15000
 #define SOLENOID_TIMEOUT_MS 2000
 
 class Poofer
