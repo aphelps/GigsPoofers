@@ -1,5 +1,5 @@
-#define RECV_LED 8
-#define DEBUG_LED 12
+#define RECV_LED 12
+#define DEBUG_LED 13
 
 void setup() {
   pinMode(RECV_LED, OUTPUT);
