@@ -97,6 +97,7 @@
 #define SHIFT_IGNITER_1 SHIFT_RELAY_2
 #define SHIFT_VALVE_2   SHIFT_RELAY_3
 #define SHIFT_IGNITER_2 SHIFT_RELAY_4
+#define SHIFT_SPOTLIGHT SHIFT_RELAY_BIG
 
 Shift shift(SHIFT_CLOCK, SHIFT_LATCH, SHIFT_DATA, 2);
 
@@ -104,6 +105,17 @@ Output valve_1_relay(SHIFT_VALVE_1, LOW, &shift);
 Output igniter_1_relay(SHIFT_IGNITER_1, LOW, &shift);
 Output valve_2_relay(SHIFT_VALVE_2, LOW, &shift);
 Output igniter_2_relay(SHIFT_IGNITER_2, LOW, &shift);
+Output spot_relay(SHIFT_SPOTLIGHT, LOW, &shift);
+
+#define NUM_OUTPUTS 5
+Pin *outputs[NUM_OUTPUTS] = {
+  &valve_1_relay,
+  &igniter_1_relay,
+  &valve_2_relay,
+  &igniter_2_relay,
+  &spot_relay
+};
+
 
 Sensor valve_1_switch(VALVE_1_SWITCH, true, false, NULL);
 Sensor igniter_1_switch(IGNITER_1_SWITCH, true, false, NULL);
@@ -141,7 +153,7 @@ Pin *pinArray[NUM_PINS] = {
   NULL,               // D10: Shift register
   NULL,               // D11: Shift register
   NULL,               // D12: Shift register
-  NULL,               // D13: 
+  NULL,               // D13:
 
   /* Analog Pins */
 #if 0
@@ -165,7 +177,6 @@ void setup() {
 }
 
 void loop() {
-
   /* Check sensores and perform actions */
   checkSensors(pinArray, NUM_PINS, false);
 
@@ -178,7 +189,7 @@ void loop() {
   }
 
   /* Trigger the outputs */
-  triggerOutputs(pinArray, NUM_PINS);
+  triggerOutputs(outputs, NUM_OUTPUTS);
   shift.Write();
 
   /* Set status display */
@@ -190,7 +201,9 @@ void loop() {
   }
 
   DEBUG_COMMAND(XXXdelay(100));
+}
 
+#if 0
 #if 1
   #if 0
   /* Check sensores and perform actions */
@@ -224,4 +237,4 @@ void loop() {
   shift.Write();
   delay(250);
 #endif
-}
+#endif
