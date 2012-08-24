@@ -47,6 +47,17 @@ Poofer::Poofer(int id, State *state,
   _sol_relay->setValue(_off_value);
 }
 
+Poofer::Poofer(int id, State *state,
+       Sensor *ign_switch, Output *ign_relay,
+       Sensor *sol_switch, Output *sol_relay,
+       boolean default_open) 
+{
+  Poofer(id, state, ign_switch, ign_relay, NULL, sol_switch, sol_relay, NULL,
+         default_open);
+}
+
+
+
 void Poofer::setIgnTimeout(unsigned long ign_max_ms) {
   _ign_max_ms = ign_max_ms;
 }
@@ -71,7 +82,7 @@ void Poofer::processState(void) {
       /* Disable when switch is turned off or timer elapses */
       _ign_on = false;
       _ign_relay->setValue(_off_value);
-      _ign_led->setValue(LOW);
+      if (_ign_led) _ign_led->setValue(LOW);
     }
   } else {
     // Enable the igniter when
@@ -82,7 +93,7 @@ void Poofer::processState(void) {
         /* Switch was turned on while in a reset state */
         _ign_on = true;
         _ign_relay->setValue(_on_value);
-        _ign_led->setValue(HIGH);
+        if (_ign_led) _ign_led->setValue(HIGH);
         _ign_on_ms = now;
       }
     } else {
@@ -100,7 +111,7 @@ void Poofer::processState(void) {
         ) { 
       _sol_on = false;
       _sol_relay->setValue(_off_value);
-      _sol_led->setValue(LOW);
+      if (_sol_led) _sol_led->setValue(LOW);
     }
   } else {
     if ((_sol_switch->curr_state == HIGH) ||
@@ -116,7 +127,7 @@ void Poofer::processState(void) {
         /* Switch was turned on while in a reset state */
         _sol_on = true;
         _sol_relay->setValue(_on_value);
-        _sol_led->setValue(HIGH);
+        if (_sol_led) _sol_led->setValue(HIGH);
         _sol_on_ms = now;
       }
     } else {

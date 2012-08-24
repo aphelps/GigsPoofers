@@ -15,8 +15,15 @@ public:
          Sensor *ign_switch, Output *ign_relay, Output *ign_led,
          Sensor *sol_switch, Output *sol_relay, Output *sol_led,
          boolean default_open);
+  Poofer(int id, State *state,
+         Sensor *ign_switch, Output *ign_relay,
+         Sensor *sol_switch, Output *sol_relay,
+         boolean default_open);
   void setIgnTimeout(unsigned long ign_max_ms);
   void setSolTimeout(unsigned long sol_max_ms);
+
+  boolean getIgn() { return _ign_on; }
+  boolean getSol() { return _sol_on; }
 
   /*
    * Examine the sensor states and set the output values appropriately

@@ -57,8 +57,8 @@
  *   SL: 40315516
  *****************************************************************************/
 
-#define DEBUG
-#define DEBUG_VERBOSE 2
+//#define DEBUG
+//#define DEBUG_VERBOSE 2
 
 #include "Debug.h"
 #include "LiquidCrystal.h"
@@ -79,54 +79,50 @@
 
 
 /* Shift register outputs */
-#define SHIFT_RELAY_1 0
-#define SHIFT_RELAY_2 1
-#define SHIFT_RELAY_3 2
-#define SHIFT_RELAY_4 3
-#define SHIFT_RELAY_5 4 /* Igniter 1? */
-#define SHIFT_RELAY_6 5 /* Valve 1? */
-#define SHIFT_RELAY_7 6 /* Igniter 2? */
-#define SHIFT_RELAY_8 7 /* Valve 2? */
+#define SHIFT_RELAY_1   0
+#define SHIFT_RELAY_2   1
+#define SHIFT_RELAY_3   2
+#define SHIFT_RELAY_4   3
+#define SHIFT_RELAY_5   4
+#define SHIFT_RELAY_6   5
+#define SHIFT_RELAY_7   6
+#define SHIFT_RELAY_8   7
 #define SHIFT_RELAY_BIG 8
 #define SHIFT_LED_1     9
 #define SHIFT_LED_2     10
 #define SHIFT_LED_3     11
 #define SHIFT_LED_4     12
 
-/* Define the shift register */
+#define SHIFT_VALVE_1   SHIFT_RELAY_1
+#define SHIFT_IGNITER_1 SHIFT_RELAY_2
+#define SHIFT_VALVE_2   SHIFT_RELAY_3
+#define SHIFT_IGNITER_2 SHIFT_RELAY_4
+
 Shift shift(SHIFT_CLOCK, SHIFT_LATCH, SHIFT_DATA, 2);
 
-#ifdef OLD
-#define VALVE_RELAY_PIN    2
-#define VALVE_SWITCH_PIN   9
-#define VALVE_LED_PIN      11
-
-#define IGNITER_RELAY_PIN  3
-#define IGNITER_SWITCH_PIN 10
-#define IGNITER_LED_PIN    13
-
-Output valve_led(VALVE_LED_PIN, LOW);
-Output valve_relay(VALVE_RELAY_PIN, LOW);
-Output igniter_led(IGNITER_LED_PIN, LOW);
-Output igniter_relay(IGNITER_RELAY_PIN, LOW);
-
-Sensor valve_switch(VALVE_SWITCH_PIN, true, false, NULL);
-Sensor igniter_switch(IGNITER_SWITCH_PIN, true, false, NULL);
-
-#define NUM_POOFERS 2
-State state(NUM_POOFERS);
-
-Poofer poofers[NUM_POOFERS] = {
-  Poofer(0, &state, &igniter_1_switch, &igniter_1_relay, &igniter_led,
-         &valve_switch, &valve_relay, &valve_led, true),
-};
-
-#endif
+Output valve_1_relay(SHIFT_VALVE_1, LOW, &shift);
+Output igniter_1_relay(SHIFT_IGNITER_1, LOW, &shift);
+Output valve_2_relay(SHIFT_VALVE_2, LOW, &shift);
+Output igniter_2_relay(SHIFT_IGNITER_2, LOW, &shift);
 
 Sensor valve_1_switch(VALVE_1_SWITCH, true, false, NULL);
 Sensor igniter_1_switch(IGNITER_1_SWITCH, true, false, NULL);
 Sensor valve_2_switch(VALVE_2_SWITCH, true, false, NULL);
 Sensor igniter_2_switch(IGNITER_2_SWITCH, true, false, NULL);
+
+#define NUM_POOFERS 2
+State state(NUM_POOFERS);
+
+Poofer poofers[NUM_POOFERS] = {
+  Poofer(0, &state,
+         &igniter_1_switch, &igniter_1_relay,
+         &valve_1_switch, &valve_1_relay, false),
+  Poofer(1, &state,
+         &igniter_2_switch, &igniter_2_relay,
+         &valve_2_switch, &valve_2_relay, false),
+};
+
+LiquidCrystal lcd(0);
 
 #define NUM_PINS 14 // Digital pins only
 // #define NUM_PINS 21 // Digital + analog
@@ -134,33 +130,31 @@ Pin *pinArray[NUM_PINS] = {
   /* Digital Pins */
   NULL,               // D0: RX - to Xbee
   NULL,               // D1: TX - to Xbee
-  NULL,       // D2: 
-  NULL,     // D3: 
+  NULL,               // D2: 
+  NULL,               // D3: 
   NULL,               // D4: 
   NULL,               // D5: 
   &valve_2_switch,    // D6: 
   &igniter_2_switch,  // D7: 
   &valve_1_switch,    // D8: 
   &igniter_1_switch,  // D9: 
-  NULL,               // D10:  Shift register
-  NULL,               // D11:  Shift register
+  NULL,               // D10: Shift register
+  NULL,               // D11: Shift register
   NULL,               // D12: Shift register
   NULL,               // D13: 
 
   /* Analog Pins */
 #if 0
-  NULL,               // A0: Empty
+  NULL,               // A0: Empty - To screw
   NULL,               // A1: Empty
   NULL,               // A2: Empty
   NULL,               // A3: Empty
-  NULL,               // A4: Empty
-  NULL,               // A5: Empty
+  NULL,               // A4: I2C - Serial LCD
+  NULL,               // A5: I2C - Serial LCD
   NULL,               // A6: Empty
   NULL,               // A7: Empty
 #endif
 };
-
-LiquidCrystal lcd(0);
 
 void setup() {
   Serial.begin(9600);
@@ -168,10 +162,34 @@ void setup() {
   lcd.begin(16, 2);
   lcd.setBacklight(HIGH);
   lcd.print("Gigsville");
-
 }
 
 void loop() {
+
+  /* Check sensores and perform actions */
+  checkSensors(pinArray, NUM_PINS, false);
+
+  /* Receive commands via XBee */
+  state.receive();
+
+  /* Based on the inputs determined what to do with the poofers */
+  for (int i = 0; i < NUM_POOFERS; i++) {
+    poofers[i].processState();
+  }
+
+  /* Trigger the outputs */
+  triggerOutputs(pinArray, NUM_PINS);
+  shift.Write();
+
+  /* Set status display */
+  lcd.setCursor(0, 1);
+  lcd.print("State:");
+  for (int i = 0; i < NUM_POOFERS; i++) {
+    lcd.print(poofers[i].getIgn());
+    lcd.print(poofers[i].getSol());
+  }
+
+  DEBUG_COMMAND(XXXdelay(100));
 
 #if 1
   #if 0
