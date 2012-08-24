@@ -33,6 +33,7 @@
 #include "Debug.h"
 #include "Pins.h"
 #include "Poofer.h"
+#include "Shift.h"
 #include "State.h"
 
 #define VALVE_RELAY_PIN    2

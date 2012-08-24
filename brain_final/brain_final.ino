@@ -188,7 +188,7 @@ void loop() {
     poofers[i].processState();
   }
 
-  /* Trigger the outputs */
+  /* Trigger the outputs and update the shit register */
   triggerOutputs(outputs, NUM_OUTPUTS);
   shift.Write();
 
