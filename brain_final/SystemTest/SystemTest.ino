@@ -45,7 +45,7 @@ void setup() {
   lcd.begin(16, 2);
   lcd.setBacklight(HIGH);
   // Print a message to the LCD.
-  lcd.print("hello, world!");
+  lcd.print("Hello Gigsville!");
 }
 
 int delay_ms = 500;

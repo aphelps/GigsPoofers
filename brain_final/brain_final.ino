@@ -61,10 +61,12 @@
 #define DEBUG_VERBOSE 2
 
 #include "Debug.h"
+#include "LiquidCrystal.h"
 #include "Pins.h"
 #include "Poofer.h"
 #include "Shift.h"
 #include "State.h"
+#include "Wire.h"
 
 /* Pins */
 #define VALVE_2_SWITCH   6
@@ -91,6 +93,10 @@
 #define SHIFT_LED_3     11
 #define SHIFT_LED_4     12
 
+/* Define the shift register */
+Shift shift(SHIFT_CLOCK, SHIFT_LATCH, SHIFT_DATA, 2);
+
+#ifdef OLD
 #define VALVE_RELAY_PIN    2
 #define VALVE_SWITCH_PIN   9
 #define VALVE_LED_PIN      11
@@ -99,9 +105,6 @@
 #define IGNITER_SWITCH_PIN 10
 #define IGNITER_LED_PIN    13
 
-Shift shift(SHIFT_CLOCK, SHIFT_LATCH, SHIFT_DATA, 2);
-
-#ifdef OLD
 Output valve_led(VALVE_LED_PIN, LOW);
 Output valve_relay(VALVE_RELAY_PIN, LOW);
 Output igniter_led(IGNITER_LED_PIN, LOW);
@@ -157,15 +160,15 @@ Pin *pinArray[NUM_PINS] = {
 #endif
 };
 
+LiquidCrystal lcd(0);
 
 void setup() {
   Serial.begin(9600);
 
-  /* Setup shift registers */
-  pinMode(SHIFT_LATCH, OUTPUT);
-  pinMode(SHIFT_CLOCK, OUTPUT);
-  pinMode(SHIFT_DATA, OUTPUT);  
-  digitalWrite(SHIFT_LATCH, LOW);
+  lcd.begin(16, 2);
+  lcd.setBacklight(HIGH);
+  lcd.print("Gigsville");
+
 }
 
 void loop() {
