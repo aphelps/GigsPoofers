@@ -31,6 +31,11 @@ public:
   void processState(void);
 
 private:
+  void init(int id, State *state,
+         Sensor *ign_switch, Output *ign_relay, Output *ign_led,
+         Sensor *sol_switch, Output *sol_relay, Output *sol_led,
+         boolean default_open);
+
   int _id;
   State *_state;
 

@@ -10,10 +10,10 @@
 #include "Poofer.h"
 #include "State.h"
 
-Poofer::Poofer(int id, State *state,
-               Sensor *ign_switch, Output *ign_relay, Output *ign_led,
-               Sensor *sol_switch, Output *sol_relay, Output *sol_led,
-               boolean default_open) {
+void Poofer::init(int id, State *state,
+                  Sensor *ign_switch, Output *ign_relay, Output *ign_led,
+                  Sensor *sol_switch, Output *sol_relay, Output *sol_led,
+                  boolean default_open) {
   _id = id;
   _state = state;
 
@@ -48,11 +48,21 @@ Poofer::Poofer(int id, State *state,
 }
 
 Poofer::Poofer(int id, State *state,
+               Sensor *ign_switch, Output *ign_relay, Output *ign_led,
+               Sensor *sol_switch, Output *sol_relay, Output *sol_led,
+               boolean default_open) {
+  init(id, state,
+       ign_switch, ign_relay, ign_led,
+       sol_switch, sol_relay, sol_led,
+         default_open);
+}
+
+Poofer::Poofer(int id, State *state,
        Sensor *ign_switch, Output *ign_relay,
        Sensor *sol_switch, Output *sol_relay,
        boolean default_open) 
 {
-  Poofer(id, state, ign_switch, ign_relay, NULL, sol_switch, sol_relay, NULL,
+  init(id, state, ign_switch, ign_relay, NULL, sol_switch, sol_relay, NULL,
          default_open);
 }
 
