@@ -117,21 +117,20 @@ Pin *outputs[NUM_OUTPUTS] = {
 };
 
 
-Sensor valve_1_switch(VALVE_1_SWITCH, true, false, NULL);
+Sensor valve_1_switch(VALVE_1_SWITCH, true, false, false, NULL, NULL);
 Sensor igniter_1_switch(IGNITER_1_SWITCH, true, false, NULL);
-Sensor valve_2_switch(VALVE_2_SWITCH, true, false, NULL);
+Sensor valve_2_switch(VALVE_2_SWITCH, true, false, false, NULL, NULL);
 Sensor igniter_2_switch(IGNITER_2_SWITCH, true, false, NULL);
 
 #define NUM_POOFERS 2
 State state(NUM_POOFERS);
-
 Poofer poofers[NUM_POOFERS] = {
   Poofer(0, &state,
          &igniter_1_switch, &igniter_1_relay,
          &valve_1_switch, &valve_1_relay, false),
   Poofer(1, &state,
          &igniter_2_switch, &igniter_2_relay,
-         &valve_2_switch, &valve_2_relay, false),
+         &valve_2_switch, &valve_2_relay, false)
 };
 
 LiquidCrystal lcd(0);
@@ -177,6 +176,7 @@ void setup() {
 }
 
 void loop() {
+#if 1
   /* Check sensores and perform actions */
   checkSensors(pinArray, NUM_PINS, false);
 
@@ -200,7 +200,33 @@ void loop() {
     lcd.print(poofers[i].getSol());
   }
 
-  DEBUG_COMMAND(XXXdelay(100));
+  DEBUG_COMMAND(delay(100));
+#else
+  /* Check sensores and perform actions */
+  checkSensors(pinArray, NUM_PINS, false);
+
+  /* Receive updates from the brain */
+  // XXX
+
+  /* Send status to the brain */
+  // XXX
+
+  /* Trigger the outputs and update the shit register */
+  triggerOutputs(outputs, NUM_OUTPUTS);
+  shift.Write();
+
+  /* Set status display */
+  lcd.setCursor(0, 1);
+  lcd.print("S:");
+  for (int i = 0; i < NUM_PINS; i++) {
+    Pin *pin = pinArray[i];
+    if (pin && (pin->type == PIN_TYPE_SENSOR)) {
+      lcd.print(((Sensor *)pin)->read());
+    }
+  }
+
+  DEBUG_COMMAND(delay(100));
+#endif
 }
 
 #if 0
