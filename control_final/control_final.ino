@@ -9,8 +9,8 @@
  *   SL: 40315516
  *****************************************************************************/
 
-#define DEBUG
-#define DEBUG_VERBOSE 2
+//#define DEBUG
+//#define DEBUG_VERBOSE 2
 
 #include "Debug.h"
 #include "LiquidCrystal.h"
@@ -28,7 +28,7 @@ LiquidCrystal lcd(0);
 #define VALVE_2_SWITCH    4
 #define IGNITER_2_SWITCH  3
 #define SPOTLIGHT_SWITCH  10
-#define EXTRA_SWITCH      128// Not connected?
+//#define EXTRA_SWITCH      128// Not connected?
 #define MENU_UP_SWITCH    8
 #define MENU_DOWN_SWITCH  7
 #define MENU_ENTER_SWITCH 6
@@ -50,14 +50,23 @@ LiquidCrystal lcd(0);
 
 Shift shift(SHIFT_CLOCK, SHIFT_LATCH, SHIFT_DATA, 1);
 
-#if 1
+Sensor valve_1_switch(VALVE_1_SWITCH,      true, false, NULL);
+Sensor igniter_1_switch(IGNITER_1_SWITCH,  true, false, NULL);
+Sensor valve_2_switch(VALVE_2_SWITCH,      true, false, NULL);
+Sensor igniter_2_switch(IGNITER_2_SWITCH,  true, false, NULL);
+Sensor spotlight_switch(SPOTLIGHT_SWITCH,  true, false, NULL);
+//Sensor extra_switch(EXTRA_SWITCH,          true, false, NULL);
+Sensor menu_up_switch(MENU_UP_SWITCH,      true, false, NULL);
+Sensor menu_down_switch(MENU_DOWN_SWITCH,  true, false, NULL);
+Sensor menu_enter_switch(MENU_ENTER_SWITCH, true, false, NULL);
+
 Output button_1_led(SHIFT_BUTTON_1, HIGH, &shift);
-Output valve_1_led(SHIFT_VALVE_1, LOW, &shift);
-Output igniter_1_led(SHIFT_IGNITER_1, LOW, &shift);
+Output valve_1_led(SHIFT_VALVE_1, LOW, &shift, &valve_1_switch);
+Output igniter_1_led(SHIFT_IGNITER_1, LOW, &shift, &igniter_1_switch);
 Output button_2_led(SHIFT_BUTTON_2, HIGH, &shift);
-Output valve_2_led(SHIFT_VALVE_2, LOW, &shift);
-Output igniter_2_led(SHIFT_IGNITER_2, LOW, &shift);
-Output spotlight_led(SHIFT_SPOTLIGHT, LOW, &shift);
+Output valve_2_led(SHIFT_VALVE_2, LOW, &shift, &valve_2_switch);
+Output igniter_2_led(SHIFT_IGNITER_2, LOW, &shift, &igniter_2_switch);
+Output spotlight_led(SHIFT_SPOTLIGHT, LOW, &shift, &spotlight_switch);
 Output extra_led(SHIFT_EXTRA, LOW, &shift);
 
 #define NUM_OUTPUTS 8
@@ -71,18 +80,6 @@ Pin *outputs[NUM_OUTPUTS] = {
   &spotlight_led,
   &extra_led
 };
-
-#endif
-Sensor valve_1_switch(VALVE_1_SWITCH,      true, false, NULL);
-#if 1
-Sensor igniter_1_switch(IGNITER_1_SWITCH,  true, false, NULL);
-Sensor valve_2_switch(VALVE_2_SWITCH,      true, false, NULL);
-Sensor igniter_2_switch(IGNITER_2_SWITCH,  true, false, NULL);
-Sensor spotlight_switch(SPOTLIGHT_SWITCH,  true, false, NULL);
-//Sensor extra_switch(EXTRA_SWITCH,          true, false, NULL);
-Sensor menu_up_switch(MENU_UP_SWITCH,      true, false, NULL);
-Sensor menu_down_switch(MENU_DOWN_SWITCH,  true, false, NULL);
-Sensor menu_enter_switch(MENU_ENTER_SWITCH, true, false, NULL);
 
 
 #define NUM_PINS 14 // Digital pins only
@@ -117,26 +114,12 @@ Pin *pinArray[NUM_PINS] = {
 #endif
 };
 
-#endif
-
 void setup() {
   Serial.begin(9600);
 
   lcd.begin(16, 2);
   lcd.setBacklight(HIGH);
   lcd.print("Gigsville");
-
-#if 0
-  pinMode(VALVE_1_SWITCH, INPUT_PULLUP);
-  pinMode(IGNITER_1_SWITCH, INPUT_PULLUP);
-  pinMode(VALVE_2_SWITCH, INPUT_PULLUP);
-  pinMode(IGNITER_2_SWITCH, INPUT_PULLUP);
-  pinMode(SPOTLIGHT_SWITCH, INPUT_PULLUP);
-//  pinMode(EXTRA_SWITCH, INPUT_PULLUP);
-//  pinMode(MENU_UP_SWITCH, INPUT_PULLUP);
-//  pinMode(MENU_DOWN_SWITCH, INPUT_PULLUP);
-//  pinMode(MENU_ENTER_SWITCH, INPUT_PULLUP);
-#endif
 }
 
 void loop() {
@@ -206,6 +189,6 @@ void loop() {
   triggerOutputs(outputs, NUM_OUTPUTS);
   shift.Write();
 
-  DEBUG_COMMAND(delay(100));
+  DEBUG_COMMAND(XXXxsdelay(100));
 #endif
 }
