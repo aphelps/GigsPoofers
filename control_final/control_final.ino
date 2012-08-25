@@ -50,10 +50,10 @@ LiquidCrystal lcd(0);
 
 Shift shift(SHIFT_CLOCK, SHIFT_LATCH, SHIFT_DATA, 1);
 
-Sensor valve_1_switch(VALVE_1_SWITCH,      true, false, NULL);
-Sensor igniter_1_switch(IGNITER_1_SWITCH,  true, false, NULL);
-Sensor valve_2_switch(VALVE_2_SWITCH,      true, false, NULL);
-Sensor igniter_2_switch(IGNITER_2_SWITCH,  true, false, NULL);
+Sensor valve_1_switch(VALVE_1_SWITCH,      true, false, action_set_valve, (void*)0);
+Sensor igniter_1_switch(IGNITER_1_SWITCH,  true, false, action_set_ignite, (void*)0);
+Sensor valve_2_switch(VALVE_2_SWITCH,      true, false, action_set_valve, (void*)1);
+Sensor igniter_2_switch(IGNITER_2_SWITCH,  true, false, action_set_ignite, (void*)1);
 Sensor spotlight_switch(SPOTLIGHT_SWITCH,  true, false, NULL);
 //Sensor extra_switch(EXTRA_SWITCH,          true, false, NULL);
 Sensor menu_up_switch(MENU_UP_SWITCH,      true, false, NULL);
@@ -113,6 +113,10 @@ Pin *pinArray[NUM_PINS] = {
   NULL,               // A7: Empty
 #endif
 };
+
+#define NUM_POOFERS 2
+
+State state(NUM_POOFERS);
 
 void setup() {
   Serial.begin(9600);
@@ -191,4 +195,19 @@ void loop() {
 
   DEBUG_COMMAND(XXXxsdelay(100));
 #endif
+}
+
+
+void action_set_valve(int pin, int value, void *arg) 
+{
+  int id = (int)arg;
+
+  state.set_poof(id, (value == HIGH));
+}
+
+void action_set_ignite(int pin, int value, void *arg) 
+{
+  int id = (int)arg;
+
+  state.set_ign(id, (value == HIGH));
 }
