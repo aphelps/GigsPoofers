@@ -1,13 +1,3 @@
-//**************************************************************//
-//  Name    : shiftOutCode, Hello World                                
-//  Author  : Carlyn Maw,Tom Igoe, David A. Mellis 
-//  Date    : 25 Oct, 2006    
-//  Modified: 23 Mar 2010                                 
-//  Version : 2.0                                             
-//  Notes   : Code for using a 74HC595 Shift Register           //
-//          : to count from 0 to 255                           
-//****************************************************************
-
 #include "Wire.h"
 #include "LiquidCrystal.h"
 LiquidCrystal lcd(0);
@@ -79,6 +69,7 @@ void loop() {
   
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
+  lcd.clear();
   lcd.setCursor(0, 1);
   // print the number of seconds since reset:
   lcd.print(millis()/1000);
@@ -138,16 +129,19 @@ void loop() {
     debugOn = 1;
   }
 
+  lcd.setCursor(0, 0);
+  lcd.print("XB1:");
   while (Serial.available()) {
     char value = Serial.read();
     
-    Serial.print(value);
+//    Serial.print(value);
     if (value == 'X') Serial.println();
-    lcd.print(value);
-    
-    //digitalWrite(RECV_LED, HIGH);
+    lcd.print(value);    
   }
 
+  Serial.write("BrainTest");
+  Serial.wtire(cycle);
+  Serial.write("X");
   
   delay(delay_ms);
   cycle++;

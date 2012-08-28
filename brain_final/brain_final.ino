@@ -122,8 +122,11 @@ Sensor igniter_1_switch(IGNITER_1_SWITCH, true, false, NULL);
 Sensor valve_2_switch(VALVE_2_SWITCH, true, false, false, NULL, NULL);
 Sensor igniter_2_switch(IGNITER_2_SWITCH, true, false, NULL);
 
+LiquidCrystal lcd(0);
+
+
 #define NUM_POOFERS 2
-State state(NUM_POOFERS);
+State state(NUM_POOFERS, &lcd);
 Poofer poofers[NUM_POOFERS] = {
   Poofer(0, &state,
          &igniter_1_switch, &igniter_1_relay,
@@ -133,7 +136,6 @@ Poofer poofers[NUM_POOFERS] = {
          &valve_2_switch, &valve_2_relay, false)
 };
 
-LiquidCrystal lcd(0);
 
 #define NUM_PINS 14 // Digital pins only
 // #define NUM_PINS 21 // Digital + analog
@@ -194,10 +196,15 @@ void loop() {
 
   /* Set status display */
   lcd.setCursor(0, 1);
-  lcd.print("State:");
   for (int i = 0; i < NUM_POOFERS; i++) {
+//    lcd.print(i);
+    lcd.print("I");
     lcd.print(poofers[i].getIgn());
+    lcd.print(state.get_ign(i));
+    lcd.print("V");
     lcd.print(poofers[i].getSol());
+    lcd.print(state.get_poof(i));
+    lcd.print("");
   }
 
   DEBUG_COMMAND(delay(100));

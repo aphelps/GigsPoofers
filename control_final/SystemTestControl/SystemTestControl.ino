@@ -60,6 +60,7 @@ void loop() {
   
   // set the cursor to column 0, line 1
   // (note: line 1 is the second row, since counting begins with 0):
+  lcd.clear();
   lcd.setCursor(0, 1);
   // print the number of seconds since reset:
   lcd.print(millis()/1000 % 100);
@@ -105,8 +106,9 @@ void loop() {
   sendLatch();
   sendLatch();
     
-//  Serial.print(low);
-  
+//  Serial.print(low);  
+  lcd.setCursor(0, 0);
+  lcd.print("XB2:");
   while (Serial.available()) {
     char value = Serial.read();
     
@@ -114,6 +116,10 @@ void loop() {
     if (value == 'X') Serial.println();
     lcd.print(value);
   }
+
+  Serial.write("Control");
+  Serial.write(cycle);
+  Serial.write("X");
   
   delay(delay_ms);
   cycle++;

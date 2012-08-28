@@ -116,7 +116,7 @@ Pin *pinArray[NUM_PINS] = {
 
 #define NUM_POOFERS 2
 
-State state(NUM_POOFERS);
+State state(NUM_POOFERS, &lcd);
 
 void setup() {
   Serial.begin(9600);
@@ -135,7 +135,7 @@ void loop() {
   // XXX
 
   /* Send status to the brain */
-  // XXX
+  state.transmit();
 
   /* Trigger the outputs and update the shit register */
   triggerOutputs(outputs, NUM_OUTPUTS);

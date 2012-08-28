@@ -2,6 +2,7 @@
 #define STATE_H
 
 #include "Arduino.h"
+#include "LiquidCrystal.h"
 
 #define MAX_POOFERS 10
 
@@ -14,7 +15,7 @@
 class State
 {
   public:
-    State(int numPoofers);
+  State(int numPoofers, LiquidCrystal *lcd);
     void set_ign(int index, boolean on);
     void set_poof(int index, boolean on);
     boolean get_ign(int index);
@@ -27,6 +28,7 @@ class State
     int _numPoofers;
     byte _poofers[MAX_POOFERS];
     byte _newPoofers[MAX_POOFERS];
+    LiquidCrystal *_lcd;
 };
 
 #endif 

@@ -1,17 +1,22 @@
-#define DEBUG
-#define DEBUG_VERBOSE 2
+//#define DEBUG
+//#define DEBUG_VERBOSE 0
 
-#include "Debug.h"
 
 #include "Arduino.h"
-#include "State.h"
+#include "LiquidCrystal.h"
 
-State::State(int numPoofers) {
+
+#include "State.h"
+#include "Debug.h"
+
+
+State::State(int numPoofers, LiquidCrystal *lcd) {
   _numPoofers = numPoofers > MAX_POOFERS ? MAX_POOFERS : numPoofers;
   for (int i = 0; i < numPoofers; i++) {
     _poofers[i] = 0;
     _newPoofers[i] = 0;
   }
+  _lcd = lcd;
 }
 
 void State::set_ign(int index, boolean on) {
@@ -36,14 +41,14 @@ void State::set_poof(int index, boolean on) {
 
 boolean State::get_ign(int index) {
   if (index < _numPoofers) {
-    return _poofers[index] & IGN_STATE;
+    return (_poofers[index] & IGN_STATE ? true : false);
   }
   return false;
 }
 
 boolean State::get_poof(int index) {
   if (index < _numPoofers) {
-    return _poofers[index] & POOF_STATE;
+    return (_poofers[index] & POOF_STATE ? true : false);
   }
   return false;
 }
@@ -71,9 +76,16 @@ void State::transmit() {
 }
 
 void State::receive() {
+#ifdef DEBUG
+  _lcd->setCursor(0, 0);
+  _lcd->print("rcv:");
+#endif
   while (Serial.available()) {
     char value = Serial.read();
     DEBUG_PRINT(2, value);
+#ifdef DEBUG
+    _lcd->print(value);
+#endif
     if ((value >= BASE_CHAR) && (value < BASE_CHAR + _numPoofers)) {
       int index = value - BASE_CHAR;
       _newPoofers[index] |= IGN_STATE;
