@@ -1,7 +1,6 @@
 //#define DEBUG
 //#define DEBUG_VERBOSE 0
 
-
 #include "Arduino.h"
 #include "LiquidCrystal.h"
 
@@ -17,14 +16,22 @@ State::State(int numPoofers, LiquidCrystal *lcd) {
     _newPoofers[i] = 0;
   }
   _lcd = lcd;
+  _sequence = 0;
+  _last_acked = 0;
 }
 
 void State::set_ign(int index, boolean on) {
   if (index < _numPoofers) {
     if (on) {
-      _poofers[index] |= IGN_STATE;
+      if (!(_poofers[index] & IGN_STATE)) {
+        _poofers[index] |= IGN_STATE;
+        _sequence++;
+      }
     } else {
-      _poofers[index] &= ~IGN_STATE;
+      if ((_poofers[index] & IGN_STATE)) {
+        _poofers[index] &= ~IGN_STATE;
+        _sequence++;
+      }
     }
    }
 }
@@ -32,9 +39,15 @@ void State::set_ign(int index, boolean on) {
 void State::set_poof(int index, boolean on) {
   if (index < _numPoofers) {
     if (on) {
-      _poofers[index] |= POOF_STATE;
+      if (!(_poofers[index] & POOF_STATE)) {
+        _poofers[index] |= POOF_STATE;
+        _sequence++;
+      }
     } else {
-      _poofers[index] &= ~POOF_STATE;
+      if ((_poofers[index] & POOF_STATE)) {
+        _poofers[index] &= ~POOF_STATE;
+        _sequence++;
+      }
     }
    }
 }
@@ -54,6 +67,12 @@ boolean State::get_poof(int index) {
 }
 
 void State::transmit() {
+  if (_sequence == _last_acked)
+    return;
+
+  Serial.write(START_CHAR);
+  Serial.write(_sequence);
+
   char baseChar = BASE_CHAR;
   char xmitChar = 0;
   for(int x = 0; x < _numPoofers; x++) {
@@ -76,32 +95,74 @@ void State::transmit() {
 }
 
 void State::receive() {
+  char value;
+  uint8_t _sequence_rcvd;
+  boolean ack = false;
+
 #ifdef DEBUG
   _lcd->setCursor(0, 0);
   _lcd->print("rcv:");
 #endif
-  while (Serial.available()) {
-    char value = Serial.read();
-    DEBUG_PRINT(2, value);
+
+  while (Serial.available()) { // Detect packet
+    value = Serial.read();
+
+    if (value == START_CHAR) {
+
+      if (Serial.available()) { // Read serial number
+        value = Serial.read();
+        _sequence_rcvd = value;
+      } else {
+        return;
+      }
+
+      while (Serial.available()) { // Read state
+      value = Serial.read();
+        DEBUG_PRINT(2, value);
 #ifdef DEBUG
-    _lcd->print(value);
+        // _lcd->print(value);
 #endif
-    if ((value >= BASE_CHAR) && (value < BASE_CHAR + _numPoofers)) {
-      int index = value - BASE_CHAR;
-      _newPoofers[index] |= IGN_STATE;
-    } else if ((value >= BASE_CHAR + _numPoofers) && (value < BASE_CHAR + (2 * _numPoofers))) {
-      int index = value - (BASE_CHAR + _numPoofers);
-      _newPoofers[index] |= POOF_STATE;
-    } else if (value == DELIMITER) {
-      DEBUG_PRINT(2, "(done)\n");
-      for (int i = 0; i < _numPoofers; i++ ) {
-        _poofers[i] = _newPoofers[i];
-        _newPoofers[i] = 0;
+
+        if ((value >= BASE_CHAR) && (value < BASE_CHAR + _numPoofers)) {
+          int index = value - BASE_CHAR;
+          _newPoofers[index] |= IGN_STATE;
+        } else if ((value >= BASE_CHAR + _numPoofers) &&
+                   (value < BASE_CHAR + (2 * _numPoofers))) {
+          int index = value - (BASE_CHAR + _numPoofers);
+          _newPoofers[index] |= POOF_STATE;
+        } else if (value == ACK_CHAR) {
+          // Update ack'd sequence number
+          _last_acked = _sequence_rcvd;
+          ack = true;
+        } else if (value == DELIMITER) {
+          DEBUG_PRINT(2, "(done)\n");
+          if (!ack) {
+            for (int i = 0; i < _numPoofers; i++ ) {
+              _poofers[i] = _newPoofers[i];
+              _newPoofers[i] = 0;
+            }
+
+            /* Entire packet has been received */
+            Serial.write(START_CHAR);
+            Serial.write(_sequence_rcvd);
+            Serial.write(ACK_CHAR);
+            Serial.write(DELIMITER);
+          }
+          
+        } else {
+          for (int i = 0; i < _numPoofers; i++) {
+            _newPoofers[i] = 0;
+          }
+        }
       }
-    } else {
-      for (int i = 0; i < _numPoofers; i++) {
-        _newPoofers[i] = 0;
-      }
-    }
-  }  
+    } // START_CHAR
 }
+
+#ifdef DEBUG
+  _lcd->print(_sequence);
+  _lcd->print("/");
+  _lcd->print(_last_acked);
+  _lcd->print("                   ");
+#endif  
+}
+

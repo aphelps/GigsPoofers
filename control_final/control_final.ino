@@ -22,6 +22,9 @@
 
 LiquidCrystal lcd(0);
 
+#define ACTIVATED_TIMEOUT  ((uint32_t)10 * (uint32_t)60 * (uint32_t)1000) // Timeout once activated
+unsigned long active_timeout = 0;
+
 /* Pins */
 #define VALVE_1_SWITCH    2
 #define IGNITER_1_SWITCH  5
@@ -59,6 +62,7 @@ Sensor spotlight_switch(SPOTLIGHT_SWITCH,  true, false, NULL);
 Sensor menu_up_switch(MENU_UP_SWITCH,      true, false, NULL);
 Sensor menu_down_switch(MENU_DOWN_SWITCH,  true, false, NULL);
 Sensor menu_enter_switch(MENU_ENTER_SWITCH, true, false, NULL);
+Sensor activate_switch(REED_SWITCH, true, false, action_set_timeout, &active_timeout);
 
 Output button_1_led(SHIFT_BUTTON_1, HIGH, &shift);
 Output valve_1_led(SHIFT_VALVE_1, LOW, &shift, &valve_1_switch);
@@ -93,7 +97,7 @@ Pin *pinArray[NUM_PINS] = {
   &valve_2_switch,    // D4: 
   &igniter_2_switch,  // D5:
   &spotlight_switch,  // D6: 
-  NULL, //&extra_switch,      // D7: 
+  &activate_switch, //&extra_switch,      // D7: 
   &menu_up_switch,    // D8: 
   &menu_down_switch,  // D9:
   &menu_enter_switch, // D10:
@@ -134,8 +138,20 @@ void loop() {
   /* Receive updates from the brain */
   // XXX
 
-  /* Send status to the brain */
-  state.transmit();
+  /* Check for acks */
+  state.receive();
+
+  if (millis() < active_timeout) {
+    /* Send status to the brain */
+    state.transmit();
+    lcd.setCursor(0, 0);
+    lcd.print("Gigsville ");
+    lcd.print((active_timeout - millis()) / 1000);
+    lcd.print("s   ");
+  } else {
+    lcd.setCursor(0, 0);
+    lcd.print("REACTIVATE      ");
+  }
 
   /* Trigger the outputs and update the shit register */
   triggerOutputs(outputs, NUM_OUTPUTS);
@@ -210,4 +226,12 @@ void action_set_ignite(int pin, int value, void *arg)
   int id = (int)arg;
 
   state.set_ign(id, (value == HIGH));
+}
+
+void action_set_timeout(int pin, int value, void *arg) 
+{
+  unsigned long *var = (unsigned long *)arg;
+  if (value == HIGH) {
+    *var = millis() + ACTIVATED_TIMEOUT;
+  }
 }
